@@ -78,13 +78,16 @@ class Mapper(object):
         except self.__error_class as exc:
             raise DriverError(cause=exc)
 
-    def select_all(self, sql, parameter=None, result_type=Result):
+    def select_all(self, sql, parameter=None, result_type=Result, array_size=1):
         try:
             cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                for row in cursor.fetchall():
-                    yield self.__create_result(row=row, result_type=result_type)
+                rows = cursor.fetchmany(array_size)
+                while rows:
+                    for row in rows:
+                        yield self.__create_result(row=row, result_type=result_type)
+                    rows = cursor.fetchmany(array_size)
             finally:
                 cursor.close()
         except self.__error_class as exc:
