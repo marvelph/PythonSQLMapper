@@ -13,6 +13,7 @@ import re
 import MySQLdb
 from MySQLdb import cursors
 
+
 class Error(Exception):
 
     def __init__(self, message=None):
@@ -21,39 +22,42 @@ class Error(Exception):
     def __str__(self):
         return str(self.message)
 
+
 class DriverError(Error):
 
     def __init__(self, cause=None):
         self.cause = cause
 
     def __str__(self):
-       return str(self.cause)
+        return str(self.cause)
+
 
 class Result(object):
     pass
 
+
 class Mapper(object):
 
     def __init__(self, database, user, password, host='localhost', port=3306):
-        self.driver_class = MySQLdb
-        self.cursor_class = MySQLdb.cursors.DictCursor
-        self.error_class = MySQLdb.Error
+        self.__driver_class = MySQLdb
+        self.__cursor_class = MySQLdb.cursors.DictCursor
+        self.__error_class = MySQLdb.Error
 
         try:
-            self.connection = self.driver_class.connect(host=host, port=port, user=user, passwd=password, db=database, charset='utf8')
-        except self.error_class as error:
+            self.connection = self.__driver_class.connect(host=host, port=port, user=user, passwd=password, db=database, charset='utf8')
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     # TODO: Support context manager
     def close(self):
         try:
             self.connection.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def select_one(self, sql, parameter=None, result_type=Result):
         try:
-            cursor = self.connection.cursor(self.cursor_class);
+            cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 if cursor.rowcount == 0:
@@ -64,74 +68,74 @@ class Mapper(object):
                     raise Error(message='Multiple result was obtained.')
             finally:
                 cursor.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def select_all(self, sql, parameter=None, result_type=Result):
         try:
-            cursor = self.connection.cursor(self.cursor_class);
+            cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 for row in cursor.fetchall():
                     yield self.__create_result(row=row, result_type=result_type)
             finally:
                 cursor.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def insert(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.cursor_class);
+            cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 return cursor.lastrowid
             finally:
                 cursor.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def update(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.cursor_class);
+            cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def delete(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.cursor_class);
+            cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def execute(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.cursor_class);
+            cursor = self.connection.cursor(self.__cursor_class)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
             finally:
                 cursor.close()
-        except self.error_class as error:
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def commit(self):
         try:
-            self.connection.commit();
-        except self.error_class as error:
+            self.connection.commit()
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def rollback(self):
         try:
-            self.connection.rollback();
-        except self.error_class as error:
+            self.connection.rollback()
+        except self.__error_class as error:
             raise DriverError(cause=error)
 
     def __map_parameter(self, sql, parameter):
