@@ -48,12 +48,19 @@ class Mapper(object):
         except self.__error_class as error:
             raise DriverError(cause=error)
 
-    # TODO: Support context manager
     def close(self):
         try:
-            self.connection.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+            if self.connection is not None:
+                self.connection.close()
+                self.connection = None
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def select_one(self, sql, parameter=None, result_type=Result):
         try:
@@ -68,8 +75,8 @@ class Mapper(object):
                     raise Error(message='Multiple result was obtained.')
             finally:
                 cursor.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def select_all(self, sql, parameter=None, result_type=Result):
         try:
@@ -80,8 +87,8 @@ class Mapper(object):
                     yield self.__create_result(row=row, result_type=result_type)
             finally:
                 cursor.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def insert(self, sql, parameter=None):
         try:
@@ -91,8 +98,8 @@ class Mapper(object):
                 return cursor.lastrowid
             finally:
                 cursor.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def update(self, sql, parameter=None):
         try:
@@ -102,8 +109,8 @@ class Mapper(object):
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def delete(self, sql, parameter=None):
         try:
@@ -113,8 +120,8 @@ class Mapper(object):
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def execute(self, sql, parameter=None):
         try:
@@ -123,20 +130,20 @@ class Mapper(object):
                 cursor.execute(*self.__map_parameter(sql, parameter))
             finally:
                 cursor.close()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def commit(self):
         try:
             self.connection.commit()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def rollback(self):
         try:
             self.connection.rollback()
-        except self.__error_class as error:
-            raise DriverError(cause=error)
+        except self.__error_class as exc:
+            raise DriverError(cause=exc)
 
     def __map_parameter(self, sql, parameter):
         represented_sql = ''
