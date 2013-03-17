@@ -35,40 +35,42 @@ class Result(object):
 class Mapper(object):
 
     def __init__(self, database, user, password, host='localhost', port=3306):
+        self.driver_class = MySQLdb
+        self.cursor_class = MySQLdb.cursors.DictCursor
+        self.error_class = MySQLdb.Error
+
         try:
-            self.connection = MySQLdb.connect(host=host, port=port, user=user, passwd=password, db=database, charset='utf8')
-            self.connection.cursorclass = MySQLdb.cursors.DictCursor
-        except MySQLdb.Error as error:
+            self.connection = self.driver_class.connect(host=host, port=port, user=user, passwd=password, db=database, charset='utf8')
+        except self.error_class as error:
             raise DriverError(cause=error)
 
-    # TODO Support context manager
+    # TODO: Support context manager
     def close(self):
         try:
             self.connection.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
     def select_one(self, sql, parameter=None, result_type=Result):
         try:
-            cursor = self.connection.cursor();
+            cursor = self.connection.cursor(self.cursor_class);
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                rows = cursor.fetchmany(size=2)
-                if len(rows) == 0:
+                if cursor.rowcount == 0:
                     return None
-                elif len(rows) == 1:
-                    return self.__create_result(row=rows[0], result_type=result_type)
+                elif cursor.rowcount == 1:
+                    return self.__create_result(row=cursor.fetchone(), result_type=result_type)
                 else:
                     raise Error(message='Multiple result was obtained.')
             finally:
                 cursor.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
     def select_all(self, sql, parameter=None, result_type=Result):
         try:
-            # TODO Support generator
-            cursor = self.connection.cursor(MySQLdb.cursors.DictCursor);
+            # TODO: Support generator
+            cursor = self.connection.cursor(self.cursor_class);
             try:
                 results = []
                 cursor.execute(*self.__map_parameter(sql, parameter))
@@ -77,63 +79,70 @@ class Mapper(object):
                 return results
             finally:
                 cursor.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
     def insert(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor();
+            cursor = self.connection.cursor(self.cursor_class);
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                self.connection.commit()
                 return cursor.lastrowid
             finally:
                 cursor.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
     def update(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor();
+            cursor = self.connection.cursor(self.cursor_class);
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                self.connection.commit()
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
     def delete(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor();
+            cursor = self.connection.cursor(self.cursor_class);
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                self.connection.commit()
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
     def execute(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor();
+            cursor = self.connection.cursor(self.cursor_class);
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                self.connection.commit()
             finally:
                 cursor.close()
-        except MySQLdb.Error as error:
+        except self.error_class as error:
             raise DriverError(cause=error)
 
-    # TODO Support transaction
+    def commit(self):
+        try:
+            self.connection.commit();
+        except self.error_class as error:
+            raise DriverError(cause=error)
+
+    def rollback(self):
+        try:
+            self.connection.rollback();
+        except self.error_class as error:
+            raise DriverError(cause=error)
 
     def __map_parameter(self, sql, parameter):
         represented_sql = ''
         parameters = ()
         start = 0
         for match in re.finditer(':[a-zA-Z_][a-zA-Z0-9_]+', sql):
+            # TODO: Support paramstyle
             represented_sql += sql[start:match.start()] + '%s'
             start = match.end()
             parameters += (self.__get_variable(parameter, sql[match.start() + 1:match.end()]),)
