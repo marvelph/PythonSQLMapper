@@ -7,11 +7,11 @@ Kenji Nishishiro <marvel@programmershigh.org>
 - Build instructions
 FIXME
 
-- How to use CocoaSQLMapper
+- How to use PythonSQLMapper
 FIXME
 
 - Todo
-Support NSDictionary parameter.
+Support transaction.
 
 - Licence
 
