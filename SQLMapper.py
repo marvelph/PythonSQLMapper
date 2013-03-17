@@ -69,14 +69,11 @@ class Mapper(object):
 
     def select_all(self, sql, parameter=None, result_type=Result):
         try:
-            # TODO: Support generator
             cursor = self.connection.cursor(self.cursor_class);
             try:
-                results = []
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 for row in cursor.fetchall():
-                    results.append(self.__create_result(row=row, result_type=result_type))
-                return results
+                    yield self.__create_result(row=row, result_type=result_type)
             finally:
                 cursor.close()
         except self.error_class as error:
