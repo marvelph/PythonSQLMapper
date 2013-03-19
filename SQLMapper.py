@@ -38,14 +38,13 @@ class Result(object):
 
 class Mapper(object):
 
-    def __init__(self, database, user, password, host='localhost', port=3306, character_set='utf8'):
+    def __init__(self, **kwargs):
         self.__driver_class = MySQLdb
         self.__cursor_class = MySQLdb.cursors.DictCursor
         self.__error_class = MySQLdb.Error
 
         try:
-            self.connection = self.__driver_class.connect(host=host, port=port, user=user, passwd=password, db=database,
-                                                          charset=character_set)
+            self.connection = self.__driver_class.connect(**kwargs)
         except self.__error_class as error:
             raise DriverError(cause=error)
 
