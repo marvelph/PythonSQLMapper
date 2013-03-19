@@ -59,7 +59,7 @@ class Mapper(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
     def select_one(self, sql, parameter=None, result_type=Result):
