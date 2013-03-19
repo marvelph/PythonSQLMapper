@@ -44,7 +44,8 @@ class Mapper(object):
         self.__error_class = MySQLdb.Error
 
         try:
-            self.connection = self.__driver_class.connect(host=host, port=port, user=user, passwd=password, db=database, charset='utf8')
+            self.connection = self.__driver_class.connect(host=host, port=port, user=user, passwd=password, db=database,
+                                                          charset='utf8')
         except self.__error_class as error:
             raise DriverError(cause=error)
 
