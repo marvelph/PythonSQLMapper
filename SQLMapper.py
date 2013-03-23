@@ -47,10 +47,10 @@ class Mapper(object):
     def __init__(self, driver, **kwargs):
         try:
             self.driver = driver
-            if driver.__name__=='MySQLdb':
+            if driver.__name__ == 'MySQLdb':
                 self.__cursor_class = driver.cursors.DictCursor
                 self.__place_holder = '?'
-            elif driver.__name__=='oursql':
+            elif driver.__name__ == 'oursql':
                 self.__cursor_class = driver.DictCursor
                 self.__place_holder = '%s'
             else:
