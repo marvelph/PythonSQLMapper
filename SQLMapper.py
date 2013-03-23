@@ -10,8 +10,6 @@
 
 import re
 
-from MySQLdb import cursors
-
 
 class Error(Exception):
 
