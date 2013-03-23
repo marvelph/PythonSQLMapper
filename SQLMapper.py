@@ -49,10 +49,10 @@ class Mapper(object):
             self.driver = driver
             if driver.__name__ == 'MySQLdb':
                 self.__cursor_class = driver.cursors.DictCursor
-                self.__place_holder = '?'
+                self.__place_holder = '%s'
             elif driver.__name__ == 'oursql':
                 self.__cursor_class = driver.DictCursor
-                self.__place_holder = '%s'
+                self.__place_holder = '?'
             else:
                 raise Error(message='Unsupported driver.')
 
