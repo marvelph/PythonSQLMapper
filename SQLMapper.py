@@ -10,7 +10,6 @@
 
 import re
 
-import MySQLdb
 from MySQLdb import cursors
 
 
@@ -23,9 +22,18 @@ class Error(Exception):
         return str(self.message)
 
 
+class DriverWarning(Error):
+
+    def __init__(self, cause):
+        self.cause = cause
+
+    def __str__(self):
+        return str(self.cause)
+
+
 class DriverError(Error):
 
-    def __init__(self, cause=None):
+    def __init__(self, cause):
         self.cause = cause
 
     def __str__(self):
@@ -38,14 +46,22 @@ class Result(object):
 
 class Mapper(object):
 
-    def __init__(self, **kwargs):
-        self.__driver_class = MySQLdb
-        self.__cursor_class = MySQLdb.cursors.DictCursor
-        self.__error_class = MySQLdb.Error
-
+    def __init__(self, driver, **kwargs):
         try:
-            self.connection = self.__driver_class.connect(**kwargs)
-        except self.__error_class as error:
+            self.driver = driver
+            if driver.__name__=='MySQLdb':
+                self.__cursor_class = driver.cursors.DictCursor
+                self.__place_holder = '?'
+            elif driver.__name__=='oursql':
+                self.__cursor_class = driver.DictCursor
+                self.__place_holder = '%s'
+            else:
+                raise Error(message='Unsupported driver.')
+
+            self.connection = self.driver.connect(**kwargs)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
             raise DriverError(cause=error)
 
     def close(self):
@@ -53,8 +69,13 @@ class Mapper(object):
             if self.connection is not None:
                 self.connection.close()
                 self.connection = None
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
+
+    def __del__(self):
+        self.close()
 
     def __enter__(self):
         return self
@@ -75,8 +96,10 @@ class Mapper(object):
                     raise Error(message='Multiple result was obtained.')
             finally:
                 cursor.close()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def select_all(self, sql, parameter=None, result_type=Result, array_size=1):
         try:
@@ -90,8 +113,10 @@ class Mapper(object):
                     rows = cursor.fetchmany(array_size)
             finally:
                 cursor.close()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def insert(self, sql, parameter=None):
         try:
@@ -101,8 +126,10 @@ class Mapper(object):
                 return cursor.lastrowid
             finally:
                 cursor.close()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def update(self, sql, parameter=None):
         try:
@@ -112,8 +139,10 @@ class Mapper(object):
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def delete(self, sql, parameter=None):
         try:
@@ -123,8 +152,10 @@ class Mapper(object):
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def execute(self, sql, parameter=None):
         try:
@@ -133,20 +164,26 @@ class Mapper(object):
                 cursor.execute(*self.__map_parameter(sql, parameter))
             finally:
                 cursor.close()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def commit(self):
         try:
             self.connection.commit()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def rollback(self):
         try:
             self.connection.rollback()
-        except self.__error_class as exc:
-            raise DriverError(cause=exc)
+        except self.driver.Warning as error:
+            raise DriverWarning(cause=error)
+        except self.driver.Error as error:
+            raise DriverError(cause=error)
 
     def __map_parameter(self, sql, parameter):
         represented_sql = ''
@@ -154,7 +191,7 @@ class Mapper(object):
         start = 0
         for match in re.finditer(':[a-zA-Z_][a-zA-Z0-9_]+', sql):
             # TODO: Support paramstyle
-            represented_sql += sql[start:match.start()] + '%s'
+            represented_sql += sql[start:match.start()] + self.__place_holder
             start = match.end()
             parameters += (self.__get_variable(parameter, sql[match.start() + 1:match.end()]),)
         represented_sql += sql[start:]
