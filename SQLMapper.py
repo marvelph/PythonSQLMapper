@@ -44,20 +44,24 @@ class Result(object):
 
 class Mapper(object):
 
-    def __init__(self, driver, **kwargs):
+    def __init__(self, driver, **params):
         try:
             self.driver = driver
             if driver.__name__ == 'MySQLdb':
                 import MySQLdb.cursors
-                self.__cursor_class = MySQLdb.cursors.DictCursor
+                self.__cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
                 self.__place_holder = '%s'
             elif driver.__name__ == 'oursql':
-                self.__cursor_class = driver.DictCursor
+                self.__cursor_params = {'cursor_class': driver.DictCursor}
                 self.__place_holder = '?'
+            elif driver.__name__ == 'psycopg2':
+                import psycopg2.extras
+                self.__cursor_params = {'cursor_factory': psycopg2.extras.RealDictCursor}
+                self.__place_holder = '%s'
             else:
                 raise Error(message='Unsupported driver.')
 
-            self.connection = self.driver.connect(**kwargs)
+            self.connection = self.driver.connect(**params)
         except self.driver.Warning as error:
             raise DriverWarning(cause=error)
         except self.driver.Error as error:
@@ -84,7 +88,7 @@ class Mapper(object):
 
     def select_one(self, sql, parameter=None, result_type=Result):
         try:
-            cursor = self.connection.cursor(self.__cursor_class)
+            cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 if cursor.rowcount == 0:
@@ -102,7 +106,7 @@ class Mapper(object):
 
     def select_all(self, sql, parameter=None, result_type=Result, array_size=1):
         try:
-            cursor = self.connection.cursor(self.__cursor_class)
+            cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 rows = cursor.fetchmany(array_size)
@@ -119,7 +123,7 @@ class Mapper(object):
 
     def insert(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.__cursor_class)
+            cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 return cursor.lastrowid
@@ -132,7 +136,7 @@ class Mapper(object):
 
     def update(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.__cursor_class)
+            cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 return cursor.rowcount
@@ -145,7 +149,7 @@ class Mapper(object):
 
     def delete(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.__cursor_class)
+            cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 return cursor.rowcount
@@ -158,7 +162,7 @@ class Mapper(object):
 
     def execute(self, sql, parameter=None):
         try:
-            cursor = self.connection.cursor(self.__cursor_class)
+            cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
             finally:
