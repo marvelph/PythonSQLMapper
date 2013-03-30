@@ -91,10 +91,11 @@ class Mapper(object):
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
-                if cursor.rowcount == 0:
+                rows = cursor.fetchmany(2)
+                if len(rows) == 0:
                     return None
-                elif cursor.rowcount == 1:
-                    return self.__create_result(row=cursor.fetchone(), result_type=result_type)
+                elif len(rows) == 1:
+                    return self.__create_result(row=rows[0], result_type=result_type)
                 else:
                     raise Error(message='Multiple result was obtained.')
             finally:
