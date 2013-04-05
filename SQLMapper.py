@@ -13,29 +13,27 @@ import re
 
 class Error(Exception):
 
-    def __init__(self, message=None):
+    def __init__(self, message, cause=None):
         self.message = message
+        self.cause = cause
 
     def __str__(self):
-        return str(self.message)
+        if self.cause is None:
+            return str(self.message)
+        else:
+            return '%s %s' % (str(self.message), str(self.cause))
 
 
 class DriverWarning(Error):
 
     def __init__(self, cause):
-        self.cause = cause
-
-    def __str__(self):
-        return str(self.cause)
+        super(DriverWarning, self).__init__('Driver warning occurred.', cause=cause)
 
 
 class DriverError(Error):
 
     def __init__(self, cause):
-        self.cause = cause
-
-    def __str__(self):
-        return str(self.cause)
+        super(DriverError, self).__init__('Driver error occurred.', cause=cause)
 
 
 class Result(object):
@@ -220,5 +218,5 @@ class Mapper(object):
             try:
                 result = result_type(**row)
                 return result
-            except TypeError:
-                raise Error(message='Constructor of the result type do not match.')
+            except TypeError as error:
+                raise Error(message='Constructor of the result type do not match.', cause=error)
