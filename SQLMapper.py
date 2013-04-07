@@ -45,7 +45,10 @@ class Mapper(object):
     def __init__(self, driver, **params):
         try:
             self.driver = driver
-            if driver.__name__ == 'MySQLdb':
+            if driver.__name__ == 'sqlite3':
+                self.__cursor_params = {}
+                self.__place_holder = '?'
+            elif driver.__name__ == 'MySQLdb':
                 import MySQLdb.cursors
                 self.__cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
                 self.__place_holder = '%s'
@@ -60,6 +63,8 @@ class Mapper(object):
                 raise Error(message='Unsupported driver.')
 
             self.connection = self.driver.connect(**params)
+            if driver.__name__ == 'sqlite3':
+                self.connection.row_factory = driver.Row
         except self.driver.Warning as error:
             raise DriverWarning(cause=error)
         except self.driver.Error as error:
