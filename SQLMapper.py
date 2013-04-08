@@ -21,7 +21,7 @@ class Error(Exception):
         if self.cause is None:
             return str(self.message)
         else:
-            return '%s %s' % (str(self.message), str(self.cause))
+            return '{0} {1}'.format(str(self.message), str(self.cause))
 
 
 class DriverWarning(Error):
