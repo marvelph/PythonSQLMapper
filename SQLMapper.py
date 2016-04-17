@@ -4,7 +4,7 @@
 #  SQLMapper.py
 #  PythonSQLMapper
 #
-#  Copyright 2013 Kenji Nishishiro. All rights reserved.
+#  Copyright 2013-2016 Kenji Nishishiro. All rights reserved.
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
@@ -51,6 +51,10 @@ class Mapper(object):
             elif driver.__name__ == 'MySQLdb':
                 import MySQLdb.cursors
                 self.__cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
+                self.__place_holder = '%s'
+            elif driver.__name__ == 'pymysql':
+                import pymysql.cursors
+                self.__cursor_params = {'cursor': pymysql.cursors.DictCursor}
                 self.__place_holder = '%s'
             elif driver.__name__ == 'oursql':
                 self.__cursor_params = {'cursor_class': driver.DictCursor}
@@ -204,7 +208,8 @@ class Mapper(object):
         represented_sql += sql[start:]
         return represented_sql, parameters
 
-    def __get_variable(self, parameter, name):
+    @staticmethod
+    def __get_variable(parameter, name):
         try:
             if isinstance(parameter, dict):
                 return parameter[name]
@@ -213,8 +218,9 @@ class Mapper(object):
         except (KeyError, AttributeError):
             raise Error(message='Bind variable not found.')
 
-    def __create_result(self, row, result_type):
-        if result_type == Result:
+    @staticmethod
+    def __create_result(row, result_type):
+        if result_type is Result:
             result = Result()
             for name in row:
                 setattr(result, name, row[name])
