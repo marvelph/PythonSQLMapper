@@ -48,6 +48,9 @@ class Mapper(object):
             if driver.__name__ == 'sqlite3':
                 self.__cursor_params = {}
                 self.__place_holder = '?'
+            elif driver.__name__ == 'mysql.connector':
+                self.__cursor_params = {'dictionary': True}
+                self.__place_holder = '%s'
             elif driver.__name__ == 'MySQLdb':
                 import MySQLdb.cursors
                 self.__cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
