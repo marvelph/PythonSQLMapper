@@ -47,24 +47,30 @@ class Mapper(object):
             self.driver = driver
             if driver.__name__ == 'sqlite3':
                 self.__cursor_params = {}
+                self.__buffered_cursor_params = self.__cursor_params
                 self.__place_holder = '?'
             elif driver.__name__ == 'mysql.connector':
                 self.__cursor_params = {'dictionary': True}
+                self.__buffered_cursor_params = {'dictionary': True, 'buffered': True}
                 self.__place_holder = '%s'
             elif driver.__name__ == 'MySQLdb':
                 import MySQLdb.cursors
-                self.__cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
+                self.__cursor_params = {'cursorclass': MySQLdb.cursors.SSDictCursor}
+                self.__buffered_cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
                 self.__place_holder = '%s'
             elif driver.__name__ == 'pymysql':
                 import pymysql.cursors
-                self.__cursor_params = {'cursor': pymysql.cursors.DictCursor}
+                self.__cursor_params = {'cursor': pymysql.cursors.SSDictCursor}
+                self.__buffered_cursor_params = {'cursor': pymysql.cursors.DictCursor}
                 self.__place_holder = '%s'
             elif driver.__name__ == 'oursql':
                 self.__cursor_params = {'cursor_class': driver.DictCursor}
+                self.__buffered_cursor_params = self.__cursor_params
                 self.__place_holder = '?'
             elif driver.__name__ == 'psycopg2':
                 import psycopg2.extras
                 self.__cursor_params = {'cursor_factory': psycopg2.extras.RealDictCursor}
+                self.__buffered_cursor_params = self.__cursor_params
                 self.__place_holder = '%s'
             else:
                 raise Error(message='Unsupported driver.')
@@ -115,9 +121,12 @@ class Mapper(object):
         except self.driver.Error as error:
             raise DriverError(cause=error)
 
-    def select_all(self, sql, parameter=None, result_type=Result, array_size=1):
+    def select_all(self, sql, parameter=None, result_type=Result, array_size=1, buffered=True):
         try:
-            cursor = self.connection.cursor(**self.__cursor_params)
+            if buffered:
+                cursor = self.connection.cursor(**self.__buffered_cursor_params)
+            else:
+                cursor = self.connection.cursor(**self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 rows = cursor.fetchmany(array_size)
