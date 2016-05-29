@@ -227,8 +227,8 @@ class Mapper(object):
                 return parameter[name]
             else:
                 return getattr(parameter, name)
-        except (KeyError, AttributeError):
-            raise Error(message='Bind variable not found.')
+        except (KeyError, AttributeError) as error:
+            raise Error(message='Bind variable not found.', cause=error)
 
     @staticmethod
     def __create_result(row, result_type):
