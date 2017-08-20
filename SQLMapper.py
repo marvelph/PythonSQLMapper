@@ -4,14 +4,14 @@
 #  SQLMapper.py
 #  PythonSQLMapper
 #
-#  Copyright 2013-2016 Kenji Nishishiro. All rights reserved.
+#  Copyright 2013-2017 Kenji Nishishiro. All rights reserved.
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
 import re
 
 
-class Error(Exception):
+class MappingError(Exception):
 
     def __init__(self, message, cause=None):
         self.message = message
@@ -24,13 +24,13 @@ class Error(Exception):
             return '{0} {1}'.format(str(self.message), str(self.cause))
 
 
-class DriverWarning(Error):
+class DriverWarning(MappingError):
 
     def __init__(self, cause):
         super(DriverWarning, self).__init__('Driver warning occurred.', cause=cause)
 
 
-class DriverError(Error):
+class DriverError(MappingError):
 
     def __init__(self, cause):
         super(DriverError, self).__init__('Driver error occurred.', cause=cause)
@@ -73,7 +73,7 @@ class Mapper(object):
                 self.__buffered_cursor_params = self.__cursor_params
                 self.__place_holder = '%s'
             else:
-                raise Error(message='Unsupported driver.')
+                raise MappingError(message='Unsupported driver.')
 
             self.connection = self.driver.connect(**params)
             if driver.__name__ == 'sqlite3':
@@ -113,7 +113,7 @@ class Mapper(object):
                 elif len(rows) == 1:
                     return self.__create_result(row=rows[0], result_type=result_type)
                 else:
-                    raise Error(message='Multiple result was obtained.')
+                    raise MappingError(message='Multiple result was obtained.')
             finally:
                 cursor.close()
         except self.driver.Warning as error:
@@ -227,8 +227,8 @@ class Mapper(object):
                 return parameter[name]
             else:
                 return getattr(parameter, name)
-        except (KeyError, AttributeError) as error:
-            raise Error(message='Bind variable not found.', cause=error)
+        except (KeyError, AttributeError):
+            raise MappingError(message='Bind variable not found.')
 
     @staticmethod
     def __create_result(row, result_type):
@@ -242,4 +242,4 @@ class Mapper(object):
                 result = result_type(**row)
                 return result
             except TypeError as error:
-                raise Error(message='Constructor of the result type do not match.', cause=error)
+                raise MappingError(message='Constructor of the result type do not match.', cause=error)
