@@ -43,6 +43,7 @@ class Result(object):
 class Mapper(object):
 
     def __init__(self, driver, **params):
+        self.connection = None
         try:
             self.driver = driver
             if driver.__name__ == 'sqlite3':
