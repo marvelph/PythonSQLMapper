@@ -14,6 +14,7 @@ import re
 class MappingError(Exception):
 
     def __init__(self, message, cause=None):
+        super(MappingError, self).__init__(message, cause)
         self.message = message
         self.cause = cause
 
