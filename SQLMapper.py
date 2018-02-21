@@ -104,7 +104,7 @@ class Mapper(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def select_one(self, sql, parameter=None, result_type=Result):
+    def select_one(self, sql, parameter=None, result_type=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -123,7 +123,7 @@ class Mapper(object):
         except self.driver.Error as error:
             raise DriverError(cause=error)
 
-    def select_all(self, sql, parameter=None, result_type=Result, array_size=1, buffered=True):
+    def select_all(self, sql, parameter=None, result_type=None, array_size=1, buffered=True):
         try:
             if buffered:
                 cursor = self.connection.cursor(**self.__buffered_cursor_params)
@@ -229,8 +229,8 @@ class Mapper(object):
                 return parameter[name]
             else:
                 return getattr(parameter, name)
-        except (KeyError, AttributeError):
-            raise MappingError(message='Bind variable "{0}" not found.'.format(name))
+        except (KeyError, AttributeError) as error:
+            raise MappingError(message='Bind variable "{0}" not found.'.format(name), cause=error)
 
     @staticmethod
     def __create_result(row, result_type):
@@ -244,4 +244,5 @@ class Mapper(object):
                 result = result_type(**row)
                 return result
             except TypeError as error:
-                raise MappingError(message='Constructor of the result type do not match.', cause=error)
+                raise MappingError(message='Constructor of the result type "{0}" do not match.'.format(
+                    result_type.__name__), cause=error)
