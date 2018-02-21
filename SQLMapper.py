@@ -4,7 +4,7 @@
 #  SQLMapper.py
 #  PythonSQLMapper
 #
-#  Copyright 2013-2017 Kenji Nishishiro. All rights reserved.
+#  Copyright 2013-2018 Kenji Nishishiro. All rights reserved.
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
@@ -230,7 +230,7 @@ class Mapper(object):
             else:
                 return getattr(parameter, name)
         except (KeyError, AttributeError):
-            raise MappingError(message='Bind variable not found.')
+            raise MappingError(message='Bind variable "{0}" not found.'.format(name))
 
     @staticmethod
     def __create_result(row, result_type):
