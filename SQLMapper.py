@@ -245,5 +245,5 @@ class Mapper(object):
                 if hasattr(result, name):
                     setattr(result, name, row[name])
                 else:
-                    raise MappingError(message='Attribute "{0}" not found in "{1}".'.format(name, result))
+                    raise MappingError(message='Attribute "{0}" not found in "{1}".'.format(name, result_type))
             return result
