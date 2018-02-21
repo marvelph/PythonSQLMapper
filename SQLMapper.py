@@ -229,20 +229,21 @@ class Mapper(object):
                 return parameter[name]
             else:
                 return getattr(parameter, name)
-        except (KeyError, AttributeError) as error:
-            raise MappingError(message='Bind variable "{0}" not found.'.format(name), cause=error)
+        except (KeyError, AttributeError):
+            raise MappingError(message='Bind variable "{0}" not found in "{1}".'.format(name, parameter))
 
     @staticmethod
     def __create_result(row, result_type):
-        if result_type is Result:
+        if result_type is None:
             result = Result()
             for name in row:
                 setattr(result, name, row[name])
             return result
         else:
-            try:
-                result = result_type(**row)
-                return result
-            except TypeError as error:
-                raise MappingError(message='Constructor of the result type "{0}" do not match.'.format(
-                    result_type.__name__), cause=error)
+            result = result_type()
+            for name in row:
+                if hasattr(result, name):
+                    setattr(result, name, row[name])
+                else:
+                    raise MappingError(message='Attribute "{0}" not found in "{1}".'.format(name, result))
+            return result
