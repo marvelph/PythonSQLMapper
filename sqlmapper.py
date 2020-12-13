@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  SQLMapper.py
+#  sqlmapper.py
 #  PythonSQLMapper
 #
-#  Copyright 2013-2018 Kenji Nishishiro. All rights reserved.
+#  Copyright 2013-2020 Kenji Nishishiro. All rights reserved.
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
