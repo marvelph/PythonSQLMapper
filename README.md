@@ -2,6 +2,7 @@
 ## SQL mapping library for python
 PythonSQLMapper is a database framework for mapping SQL to objects.
 It has a similar design to [iBATIS](http://ibatis.apache.org), but is simpler.
+It supports MySQL, PostgreSQL, and SQLite.
 
 It was originally written in Objective-C for iOS and macOS as [CocoaSQLMapper](https://github.com/marvelph/CocoaSQLMapper).
 PythonSQLMapper is a reimplementation in Python.
