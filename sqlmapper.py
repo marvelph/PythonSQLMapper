@@ -4,7 +4,7 @@
 #  sqlmapper.py
 #  PythonSQLMapper
 #
-#  Copyright 2013-2020 Kenji Nishishiro. All rights reserved.
+#  Copyright 2013-2023 Kenji Nishishiro. All rights reserved.
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
@@ -12,29 +12,29 @@ import re
 
 
 class MappingError(Exception):
-
-    def __init__(self, message, cause=None):
-        super(MappingError, self).__init__(message, cause)
-        self.message = message
-        self.cause = cause
-
-    def __str__(self):
-        if self.cause is None:
-            return str(self.message)
-        else:
-            return '{0} {1}'.format(str(self.message), str(self.cause))
+    pass
 
 
 class DriverWarning(MappingError):
+    def __init__(self):
+        super().__init__("Driver warning occurred.")
 
-    def __init__(self, cause):
-        super(DriverWarning, self).__init__('Driver warning occurred.', cause=cause)
+    def __str__(self):
+        if self.__cause__ is not None:
+            return "{0} {1}".format(super().__str__(), self.__cause__.__str__())
+        else:
+            return super().__str__()
 
 
 class DriverError(MappingError):
+    def __init__(self):
+        super().__init__("Driver error occurred.")
 
-    def __init__(self, cause):
-        super(DriverError, self).__init__('Driver error occurred.', cause=cause)
+    def __str__(self):
+        if self.__cause__ is not None:
+            return "{0} {1}".format(super().__str__(), self.__cause__.__str__())
+        else:
+            return super().__str__()
 
 
 class Result(object):
@@ -42,48 +42,50 @@ class Result(object):
 
 
 class Mapper(object):
-
     def __init__(self, driver, **params):
         self.connection = None
         try:
             self.driver = driver
-            if driver.__name__ == 'sqlite3':
+            if driver.__name__ == "sqlite3":
                 self.__cursor_params = {}
                 self.__buffered_cursor_params = self.__cursor_params
-                self.__place_holder = '?'
-            elif driver.__name__ == 'mysql.connector':
-                self.__cursor_params = {'dictionary': True}
-                self.__buffered_cursor_params = {'dictionary': True, 'buffered': True}
-                self.__place_holder = '%s'
-            elif driver.__name__ == 'MySQLdb':
+                self.__place_holder = "?"
+            elif driver.__name__ == "mysql.connector":
+                self.__cursor_params = {"dictionary": True}
+                self.__buffered_cursor_params = {"dictionary": True, "buffered": True}
+                self.__place_holder = "%s"
+            elif driver.__name__ == "MySQLdb":
                 import MySQLdb.cursors
-                self.__cursor_params = {'cursorclass': MySQLdb.cursors.SSDictCursor}
-                self.__buffered_cursor_params = {'cursorclass': MySQLdb.cursors.DictCursor}
-                self.__place_holder = '%s'
-            elif driver.__name__ == 'pymysql':
+
+                self.__cursor_params = {"cursorclass": MySQLdb.cursors.SSDictCursor}
+                self.__buffered_cursor_params = {"cursorclass": MySQLdb.cursors.DictCursor}
+                self.__place_holder = "%s"
+            elif driver.__name__ == "pymysql":
                 import pymysql.cursors
-                self.__cursor_params = {'cursor': pymysql.cursors.SSDictCursor}
-                self.__buffered_cursor_params = {'cursor': pymysql.cursors.DictCursor}
-                self.__place_holder = '%s'
-            elif driver.__name__ == 'oursql':
-                self.__cursor_params = {'cursor_class': driver.DictCursor}
+
+                self.__cursor_params = {"cursor": pymysql.cursors.SSDictCursor}
+                self.__buffered_cursor_params = {"cursor": pymysql.cursors.DictCursor}
+                self.__place_holder = "%s"
+            elif driver.__name__ == "oursql":
+                self.__cursor_params = {"cursor_class": driver.DictCursor}
                 self.__buffered_cursor_params = self.__cursor_params
-                self.__place_holder = '?'
-            elif driver.__name__ == 'psycopg2':
+                self.__place_holder = "?"
+            elif driver.__name__ == "psycopg2":
                 import psycopg2.extras
-                self.__cursor_params = {'cursor_factory': psycopg2.extras.RealDictCursor}
+
+                self.__cursor_params = {"cursor_factory": psycopg2.extras.RealDictCursor}
                 self.__buffered_cursor_params = self.__cursor_params
-                self.__place_holder = '%s'
+                self.__place_holder = "%s"
             else:
-                raise MappingError(message='Unsupported driver.')
+                raise MappingError("Unsupported driver.")
 
             self.connection = self.driver.connect(**params)
-            if driver.__name__ == 'sqlite3':
+            if driver.__name__ == "sqlite3":
                 self.connection.row_factory = driver.Row
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def close(self):
         try:
@@ -91,9 +93,9 @@ class Mapper(object):
                 self.connection.close()
                 self.connection = None
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def __del__(self):
         self.close()
@@ -115,13 +117,13 @@ class Mapper(object):
                 elif len(rows) == 1:
                     return self.__create_result(row=rows[0], result_type=result_type)
                 else:
-                    raise MappingError(message='Multiple result was obtained.')
+                    raise MappingError("Multiple result was obtained.")
             finally:
                 cursor.close()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def select_all(self, sql, parameter=None, result_type=None, array_size=1, buffered=True):
         try:
@@ -139,9 +141,9 @@ class Mapper(object):
             finally:
                 cursor.close()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def insert(self, sql, parameter=None):
         try:
@@ -152,9 +154,9 @@ class Mapper(object):
             finally:
                 cursor.close()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def update(self, sql, parameter=None):
         try:
@@ -165,9 +167,9 @@ class Mapper(object):
             finally:
                 cursor.close()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def delete(self, sql, parameter=None):
         try:
@@ -178,9 +180,9 @@ class Mapper(object):
             finally:
                 cursor.close()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def execute(self, sql, parameter=None):
         try:
@@ -190,35 +192,35 @@ class Mapper(object):
             finally:
                 cursor.close()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def commit(self):
         try:
             self.connection.commit()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def rollback(self):
         try:
             self.connection.rollback()
         except self.driver.Warning as error:
-            raise DriverWarning(cause=error)
+            raise DriverWarning() from error
         except self.driver.Error as error:
-            raise DriverError(cause=error)
+            raise DriverError() from error
 
     def __map_parameter(self, sql, parameter):
-        represented_sql = ''
+        represented_sql = ""
         parameters = ()
         start = 0
-        for match in re.finditer(':[a-zA-Z_][a-zA-Z0-9_]+', sql):
+        for match in re.finditer(":[a-zA-Z_][a-zA-Z0-9_]+", sql):
             # TODO: Support paramstyle
-            represented_sql += sql[start:match.start()] + self.__place_holder
+            represented_sql += sql[start : match.start()] + self.__place_holder
             start = match.end()
-            parameters += (self.__get_variable(parameter, sql[match.start() + 1:match.end()]),)
+            parameters += (self.__get_variable(parameter, sql[match.start() + 1 : match.end()]),)
         represented_sql += sql[start:]
         return represented_sql, parameters
 
@@ -230,7 +232,7 @@ class Mapper(object):
             else:
                 return getattr(parameter, name)
         except (KeyError, AttributeError):
-            raise MappingError(message='Bind variable "{0}" not found in "{1}".'.format(name, parameter))
+            raise MappingError("Bind variable '{0}' not found in '{1}'.".format(name, parameter))
 
     @staticmethod
     def __create_result(row, result_type):
@@ -245,5 +247,5 @@ class Mapper(object):
                 if hasattr(result, name):
                     setattr(result, name, row[name])
                 else:
-                    raise MappingError(message='Attribute "{0}" not found in "{1}".'.format(name, result_type))
-            return result
+                    raise MappingError("Attribute '{0}' not found in '{1}'.".format(name, result_type))
+            return
