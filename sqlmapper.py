@@ -248,4 +248,4 @@ class Mapper(object):
                     setattr(result, name, row[name])
                 else:
                     raise MappingError("Attribute '{0}' not found in '{1}'.".format(name, result_type))
-            return
+            return result
