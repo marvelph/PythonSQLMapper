@@ -88,9 +88,7 @@ class TestSQLite3Mapper(unittest.TestCase):
         )
 
         sales_id = self.mapper.insert("INSERT INTO departments (name) VALUES (:name)", {"name": "Sales"})
-        engineering_id = self.mapper.insert(
-            "INSERT INTO departments (name) VALUES (:name)", {"name": "Engineering"}
-        )
+        engineering_id = self.mapper.insert("INSERT INTO departments (name) VALUES (:name)", {"name": "Engineering"})
 
         self.alice_id = self.mapper.insert(
             """
@@ -266,6 +264,24 @@ class TestSQLite3Mapper(unittest.TestCase):
         )
         self.mapper.commit()
         self.assertIsInstance(new_user.id, int)
+
+    def test_insert_without_rowid_table_can_return_none_or_zero(self):
+        with tempfile.TemporaryDirectory(prefix="psm_sqlite3_no_rowid_") as tempdir:
+            db_path = os.path.join(tempdir, "no_rowid.db")
+            with Mapper(sqlite3, database=db_path) as mapper:
+                mapper.execute(
+                    """
+                    CREATE TABLE external_keys (
+                        code TEXT PRIMARY KEY
+                    ) WITHOUT ROWID
+                    """
+                )
+                lastrowid = mapper.insert(
+                    "INSERT INTO external_keys (code) VALUES (:code)",
+                    {"code": "A001"},
+                )
+                mapper.commit()
+            self.assertEqual(lastrowid, 0)
 
     def test_update_returns_rowcount_for_optimistic_lock_check(self):
         updated_ok = self.mapper.update(
