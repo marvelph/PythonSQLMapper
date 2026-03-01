@@ -241,7 +241,7 @@ For atomic writes, execute multiple updates together and commit at the end.
 You can call `commit()` multiple times as transaction boundaries, running multiple transactions on one connection.  
 If an exception exits a `with` block before `commit()`, pending changes are rolled back according to the driver implementation.
 
-- With `with`: uncommitted updates are rolled back when exiting by exception
+- With `with`: uncommitted updates are rolled back when exiting by exception (`Mapper` does not call `rollback()` explicitly; it relies on driver behavior at connection close)
 - Reusing `Mapper`: call `rollback()` explicitly on failure so pending state is not carried into the next operation
 
 ```python
@@ -288,7 +288,9 @@ for job in jobs:
 
 - Fetches multiple rows as a generator
 - `array_size` is the chunk size for `fetchmany`
-- `buffered` chooses buffered/unbuffered cursor behavior depending on driver
+- When `buffered=True`, it uses a cursor that buffers result sets, if provided by the driver
+- When `buffered=False`, it uses a cursor that does not buffer result sets, if provided by the driver
+- Some drivers do not offer cursor alternatives, so both modes may behave the same
 
 ```python
 for user in mapper.select_all(
