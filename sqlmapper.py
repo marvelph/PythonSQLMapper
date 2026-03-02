@@ -420,7 +420,10 @@ class Mapper(object):
                 setattr(result, name, row[name])
             return result
         else:
-            result = result_type()
+            try:
+                result = result_type()
+            except TypeError:
+                raise MappingError("Result type '{0}' must be instantiable without arguments.".format(result_type))
             for name in row:
                 if hasattr(result, name):
                     setattr(result, name, row[name])
