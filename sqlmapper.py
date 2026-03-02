@@ -84,10 +84,6 @@ class Mapper(object):
                 self.__cursor_params = {"cursor": pymysql.cursors.SSDictCursor}
                 self.__buffered_cursor_params = {"cursor": pymysql.cursors.DictCursor}
                 self.__place_holder = "%s"
-            elif driver.__name__ == "oursql":
-                self.__cursor_params = {"cursor_class": driver.DictCursor}
-                self.__buffered_cursor_params = self.__cursor_params
-                self.__place_holder = "?"
             elif driver.__name__ == "psycopg2":
                 import psycopg2.extras
 
@@ -97,7 +93,7 @@ class Mapper(object):
             else:
                 raise MappingError(
                     f"Unsupported driver '{driver.__name__}'. Supported drivers: sqlite3, mysql.connector, "
-                    "MySQLdb, pymysql, oursql, psycopg2."
+                    "MySQLdb, pymysql, psycopg2."
                 )
 
             self.connection = self.driver.connect(**params)
