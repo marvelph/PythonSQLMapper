@@ -95,7 +95,6 @@ class Mapper(object):
                     f"Unsupported driver '{driver.__name__}'. Supported drivers: sqlite3, mysql.connector, "
                     "MySQLdb, pymysql, psycopg2."
                 )
-
             self.connection = self.driver.connect(**params)
             if driver.__name__ == "sqlite3":
                 self.connection.row_factory = self.__sqlite3_dict_factory
@@ -393,7 +392,7 @@ class Mapper(object):
         represented_sql = ""
         parameters = ()
         start = 0
-        for match in re.finditer(":[a-zA-Z_][a-zA-Z0-9_]+", sql):
+        for match in re.finditer(":[a-zA-Z_][a-zA-Z0-9_]*", sql):
             # TODO: Support paramstyle
             represented_sql += sql[start : match.start()] + self.__place_holder
             start = match.end()
