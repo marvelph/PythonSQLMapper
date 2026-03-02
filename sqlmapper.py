@@ -99,7 +99,12 @@ class Mapper(object):
 
             self.connection = self.driver.connect(**params)
             if driver.__name__ == "sqlite3":
-                self.connection.row_factory = driver.Row
+
+                def dict_factory(cursor, row):
+                    fields = [column[0] for column in cursor.description]
+                    return {key: value for key, value in zip(fields, row)}
+
+                self.connection.row_factory = dict_factory
         except self.driver.NotSupportedError as error:
             raise DriverNotSupportedError(*error.args) from error
         except self.driver.ProgrammingError as error:
