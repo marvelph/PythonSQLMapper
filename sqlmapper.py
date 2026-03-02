@@ -395,7 +395,7 @@ class Mapper(object):
         represented_sql = ""
         parameters = ()
         start = 0
-        for match in re.finditer(":[a-zA-Z_][a-zA-Z0-9_]*", sql):
+        for match in re.finditer("(?<!:):[a-zA-Z_][a-zA-Z0-9_]*", sql):
             # TODO: Support paramstyle
             represented_sql += sql[start : match.start()] + self.__place_holder
             start = match.end()
