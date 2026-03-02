@@ -96,9 +96,8 @@ class Mapper(object):
                 self.__place_holder = "%s"
             else:
                 raise MappingError(
-                    "Unsupported driver '{0}'. Supported drivers: sqlite3, mysql.connector, MySQLdb, pymysql, oursql, psycopg2.".format(
-                        driver.__name__
-                    )
+                    f"Unsupported driver '{driver.__name__}'. Supported drivers: sqlite3, mysql.connector, "
+                    "MySQLdb, pymysql, oursql, psycopg2."
                 )
 
             self.connection = self.driver.connect(**params)
@@ -418,18 +417,14 @@ class Mapper(object):
                 return parameter[name]
             except KeyError:
                 raise MappingError(
-                    "Bind variable '{0}' was not found in dict parameter. Available keys: {1}".format(
-                        name, sorted(parameter.keys())
-                    )
+                    f"Bind variable '{name}' was not found in dict parameter. Available keys: {sorted(parameter.keys())}"
                 )
         else:
             try:
                 return getattr(parameter, name)
             except AttributeError:
                 raise MappingError(
-                    "Bind variable '{0}' was not found in parameter object of type '{1}'.".format(
-                        name, type(parameter).__name__
-                    )
+                    f"Bind variable '{name}' was not found in parameter object of type '{type(parameter).__name__}'."
                 )
 
     @staticmethod
@@ -443,12 +438,10 @@ class Mapper(object):
             try:
                 result = result_type()
             except TypeError:
-                raise MappingError("Result type '{0}' must be instantiable without arguments.".format(result_type))
+                raise MappingError(f"Result type '{result_type}' must be instantiable without arguments.")
             for name in row:
                 if hasattr(result, name):
                     setattr(result, name, row[name])
                 else:
-                    raise MappingError(
-                        "Attribute '{0}' was not found in result_type '{1}'.".format(name, result_type.__name__)
-                    )
+                    raise MappingError(f"Attribute '{name}' was not found in result_type '{result_type.__name__}'.")
             return result
