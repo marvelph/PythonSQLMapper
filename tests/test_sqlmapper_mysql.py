@@ -1,6 +1,6 @@
 import unittest
 
-from test_sqlmapper_mysql_common import MySQLMapperTestMixin
+from tests.sqlmapper_mysql_common import MySQLMapperTestMixin
 
 try:
     import mysql.connector as mysql_connector

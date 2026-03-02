@@ -6,7 +6,7 @@ Manage required environment variables in a `.env` file.
 ## Python Environment
 
 ```bash
-python3.8 -m venv .venv
+python3.10 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 ```
@@ -86,29 +86,29 @@ source .venv/bin/activate
 SQLite3:
 
 ```bash
-python -m unittest -v test_sqlmapper_sqlite3.py
+python -m unittest -v tests/test_sqlmapper_sqlite3.py
 ```
 
 MySQL (`mysql.connector`):
 
 ```bash
-python -m unittest -v test_sqlmapper_mysql.py
+python -m unittest -v tests/test_sqlmapper_mysql.py
 ```
 
 MySQL (`pymysql`):
 
 ```bash
-python -m unittest -v test_sqlmapper_pymysql.py
+python -m unittest -v tests/test_sqlmapper_pymysql.py
 ```
 
 MySQL (`MySQLdb` / `mysqlclient`):
 
 ```bash
-python -m unittest -v test_sqlmapper_mysqldb.py
+python -m unittest -v tests/test_sqlmapper_mysqldb.py
 ```
 
 PostgreSQL (`psycopg2`):
 
 ```bash
-python -m unittest -v test_sqlmapper_psycopg2.py
+python -m unittest -v tests/test_sqlmapper_psycopg2.py
 ```
