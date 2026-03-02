@@ -230,6 +230,41 @@ class TestPsycopg2Mapper(unittest.TestCase):
         self.assertEqual([row.id for row in rows_buffered], [row.id for row in rows_unbuffered])
         self.assertEqual([row.name for row in rows_buffered], [row.name for row in rows_unbuffered])
 
+    def test_select_all_nested_unbuffered_queries_can_run_without_cursor_name_conflict(self):
+        # Add enough rows to force incremental fetch when array_size=1.
+        for i in range(3):
+            self.mapper.insert(
+                "INSERT INTO users (name, status, updated_at, department_id, used_flag) VALUES (:name, :status, :updated_at, :department_id, :used_flag)",
+                {
+                    "name": f"Nested-{i}",
+                    "status": "active",
+                    "updated_at": "2026-03-01 09:00:00",
+                    "department_id": None,
+                    "used_flag": 0,
+                },
+            )
+        self.mapper.commit()
+
+        outer_count = 0
+        for _ in self.mapper.select_all(
+            "SELECT id, name FROM users WHERE status = :status ORDER BY id",
+            {"status": "active"},
+            array_size=1,
+            buffered=False,
+        ):
+            balances = [
+                row.balance
+                for row in self.mapper.select_all(
+                    "SELECT id, balance FROM accounts ORDER BY id",
+                    array_size=1,
+                    buffered=False,
+                )
+            ]
+            self.assertEqual(balances, [5000, 1000])
+            outer_count += 1
+
+        self.assertGreaterEqual(outer_count, 5)
+
     def test_select_one_with_result_type(self):
         row = self.mapper.select_one(
             "SELECT id, name FROM users WHERE id = :id",
