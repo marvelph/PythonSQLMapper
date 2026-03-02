@@ -61,43 +61,43 @@ class Result(object):
 
 class Mapper(object):
     def __init__(self, driver, **params):
+        self.driver = driver
         self.connection = None
+
+        if self.driver.__name__ == "sqlite3":
+            self.__cursor_params = {}
+            self.__buffered_cursor_params = self.__cursor_params
+            self.__place_holder = "?"
+        elif self.driver.__name__ == "mysql.connector":
+            self.__cursor_params = {"dictionary": True}
+            self.__buffered_cursor_params = {"dictionary": True, "buffered": True}
+            self.__place_holder = "%s"
+        elif self.driver.__name__ == "MySQLdb":
+            import MySQLdb.cursors
+
+            self.__cursor_params = {"cursorclass": MySQLdb.cursors.SSDictCursor}
+            self.__buffered_cursor_params = {"cursorclass": MySQLdb.cursors.DictCursor}
+            self.__place_holder = "%s"
+        elif self.driver.__name__ == "pymysql":
+            import pymysql.cursors
+
+            self.__cursor_params = {"cursor": pymysql.cursors.SSDictCursor}
+            self.__buffered_cursor_params = {"cursor": pymysql.cursors.DictCursor}
+            self.__place_holder = "%s"
+        elif self.driver.__name__ == "psycopg2":
+            import psycopg2.extras
+
+            self.__cursor_params = {"cursor_factory": psycopg2.extras.RealDictCursor}
+            self.__buffered_cursor_params = self.__cursor_params
+            self.__place_holder = "%s"
+        else:
+            raise MappingError(
+                f"Unsupported driver '{self.driver.__name__}'. Supported drivers: sqlite3, mysql.connector, "
+                "MySQLdb, pymysql, psycopg2."
+            )
+
         try:
-            self.driver = driver
-            if driver.__name__ == "sqlite3":
-                self.__cursor_params = {}
-                self.__buffered_cursor_params = self.__cursor_params
-                self.__place_holder = "?"
-            elif driver.__name__ == "mysql.connector":
-                self.__cursor_params = {"dictionary": True}
-                self.__buffered_cursor_params = {"dictionary": True, "buffered": True}
-                self.__place_holder = "%s"
-            elif driver.__name__ == "MySQLdb":
-                import MySQLdb.cursors
-
-                self.__cursor_params = {"cursorclass": MySQLdb.cursors.SSDictCursor}
-                self.__buffered_cursor_params = {"cursorclass": MySQLdb.cursors.DictCursor}
-                self.__place_holder = "%s"
-            elif driver.__name__ == "pymysql":
-                import pymysql.cursors
-
-                self.__cursor_params = {"cursor": pymysql.cursors.SSDictCursor}
-                self.__buffered_cursor_params = {"cursor": pymysql.cursors.DictCursor}
-                self.__place_holder = "%s"
-            elif driver.__name__ == "psycopg2":
-                import psycopg2.extras
-
-                self.__cursor_params = {"cursor_factory": psycopg2.extras.RealDictCursor}
-                self.__buffered_cursor_params = self.__cursor_params
-                self.__place_holder = "%s"
-            else:
-                raise MappingError(
-                    f"Unsupported driver '{driver.__name__}'. Supported drivers: sqlite3, mysql.connector, "
-                    "MySQLdb, pymysql, psycopg2."
-                )
             self.connection = self.driver.connect(**params)
-            if driver.__name__ == "sqlite3":
-                self.connection.row_factory = self.__sqlite3_dict_factory
         except self.driver.NotSupportedError as error:
             raise DriverNotSupportedError(*error.args) from error
         except self.driver.ProgrammingError as error:
@@ -118,6 +118,9 @@ class Mapper(object):
             raise DriverError(*error.args) from error
         except self.driver.Warning as error:
             raise DriverWarning(*error.args) from error
+
+        if self.driver.__name__ == "sqlite3":
+            self.connection.row_factory = self.__sqlite3_dict_factory
 
     def close(self):
         try:
