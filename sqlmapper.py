@@ -192,6 +192,8 @@ class Mapper(object):
         except self.driver.Warning as error:
             raise DriverWarning(*error.args) from error
 
+    returning_one = select_one
+
     def select_all(self, sql, parameter=None, result_type=None, array_size=1, buffered=True):
         try:
             if buffered:
@@ -227,6 +229,8 @@ class Mapper(object):
             raise DriverError(*error.args) from error
         except self.driver.Warning as error:
             raise DriverWarning(*error.args) from error
+
+    returning_all = select_all
 
     def insert(self, sql, parameter=None):
         try:
