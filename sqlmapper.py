@@ -258,7 +258,7 @@ class Mapper(object):
                 raise mapped from error
             else:
                 raise
- 
+
     def __map_parameter(self, sql, parameter):
         represented_sql = ""
         parameters = ()
@@ -281,15 +281,15 @@ class Mapper(object):
             return DriverIntegrityError(*error.args)
         elif isinstance(error, self.driver.OperationalError):
             return DriverOperationalError(*error.args)
-        elif isinstance(error, self.driver.DataError ):
+        elif isinstance(error, self.driver.DataError):
             return DriverDataError(*error.args)
         elif isinstance(error, self.driver.DatabaseError):
             return DriverDatabaseError(*error.args)
-        elif isinstance(error, self.driver.InterfaceError ):
+        elif isinstance(error, self.driver.InterfaceError):
             return DriverInterfaceError(*error.args)
-        elif isinstance(error, self.driver.Error ):
+        elif isinstance(error, self.driver.Error):
             return DriverError(*error.args)
-        elif isinstance(error, self.driver.Warning ):
+        elif isinstance(error, self.driver.Warning):
             return DriverWarning(*error.args)
         else:
             return None
