@@ -286,34 +286,7 @@ class Mapper(object):
         except self.driver.Warning as error:
             raise DriverWarning(*error.args) from error
 
-    def delete(self, sql, parameter=None):
-        try:
-            cursor = self.connection.cursor(**self.__cursor_params)
-            try:
-                cursor.execute(*self.__map_parameter(sql, parameter))
-                return cursor.rowcount
-            finally:
-                cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+    delete = update
 
     def execute(self, sql, parameter=None):
         try:
