@@ -98,26 +98,12 @@ class Mapper(object):
 
         try:
             self.connection = self.driver.connect(**params)
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
         if self.driver.__name__ == "sqlite3":
             self.connection.row_factory = self.__sqlite3_dict_factory
@@ -127,26 +113,12 @@ class Mapper(object):
             if self.connection is not None:
                 self.connection.close()
                 self.connection = None
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     def __del__(self):
         self.close()
@@ -171,26 +143,12 @@ class Mapper(object):
                     raise MappingError("Expected exactly one row, but multiple rows were returned.")
             finally:
                 cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     returning_one = select_one
 
@@ -209,26 +167,12 @@ class Mapper(object):
                     rows = cursor.fetchmany(array_size)
             finally:
                 cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     returning_all = select_all
 
@@ -240,26 +184,12 @@ class Mapper(object):
                 return cursor.lastrowid
             finally:
                 cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     def update(self, sql, parameter=None):
         try:
@@ -269,26 +199,12 @@ class Mapper(object):
                 return cursor.rowcount
             finally:
                 cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     delete = update
 
@@ -300,26 +216,12 @@ class Mapper(object):
                 return cursor.rowcount, cursor.lastrowid
             finally:
                 cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     ignore = upsert
 
@@ -330,75 +232,33 @@ class Mapper(object):
                 cursor.execute(*self.__map_parameter(sql, parameter))
             finally:
                 cursor.close()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     def commit(self):
         try:
             self.connection.commit()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
 
     def rollback(self):
         try:
             self.connection.rollback()
-        except self.driver.NotSupportedError as error:
-            raise DriverNotSupportedError(*error.args) from error
-        except self.driver.ProgrammingError as error:
-            raise DriverProgrammingError(*error.args) from error
-        except self.driver.InternalError as error:
-            raise DriverInternalError(*error.args) from error
-        except self.driver.IntegrityError as error:
-            raise DriverIntegrityError(*error.args) from error
-        except self.driver.OperationalError as error:
-            raise DriverOperationalError(*error.args) from error
-        except self.driver.DataError as error:
-            raise DriverDataError(*error.args) from error
-        except self.driver.DatabaseError as error:
-            raise DriverDatabaseError(*error.args) from error
-        except self.driver.InterfaceError as error:
-            raise DriverInterfaceError(*error.args) from error
-        except self.driver.Error as error:
-            raise DriverError(*error.args) from error
-        except self.driver.Warning as error:
-            raise DriverWarning(*error.args) from error
-
+        except Exception as error:
+            mapped = self.__map_driver_error(error)
+            if mapped is not None:
+                raise mapped from error
+            else:
+                raise
+ 
     def __map_parameter(self, sql, parameter):
         represented_sql = ""
         parameters = ()
@@ -409,6 +269,30 @@ class Mapper(object):
             parameters += (self.__get_variable(parameter, sql[match.start() + 1 : match.end()]),)
         represented_sql += sql[start:]
         return represented_sql, parameters
+
+    def __map_driver_error(self, error):
+        if isinstance(error, self.driver.NotSupportedError):
+            return DriverNotSupportedError(*error.args)
+        elif isinstance(error, self.driver.ProgrammingError):
+            return DriverProgrammingError(*error.args)
+        elif isinstance(error, self.driver.InternalError):
+            return DriverInternalError(*error.args)
+        elif isinstance(error, self.driver.IntegrityError):
+            return DriverIntegrityError(*error.args)
+        elif isinstance(error, self.driver.OperationalError):
+            return DriverOperationalError(*error.args)
+        elif isinstance(error, self.driver.DataError ):
+            return DriverDataError(*error.args)
+        elif isinstance(error, self.driver.DatabaseError):
+            return DriverDatabaseError(*error.args)
+        elif isinstance(error, self.driver.InterfaceError ):
+            return DriverInterfaceError(*error.args)
+        elif isinstance(error, self.driver.Error ):
+            return DriverError(*error.args)
+        elif isinstance(error, self.driver.Warning ):
+            return DriverWarning(*error.args)
+        else:
+            return None
 
     @staticmethod
     def __sqlite3_dict_factory(cursor, row):
