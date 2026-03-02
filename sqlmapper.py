@@ -4,7 +4,7 @@
 #  sqlmapper.py
 #  PythonSQLMapper
 #
-#  Copyright 2013-2023 Kenji Nishishiro. All rights reserved.
+#  Copyright 2013-2026 Kenji Nishishiro. All rights reserved.
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
