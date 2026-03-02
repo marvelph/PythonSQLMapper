@@ -95,7 +95,11 @@ class Mapper(object):
                 self.__buffered_cursor_params = self.__cursor_params
                 self.__place_holder = "%s"
             else:
-                raise MappingError("Unsupported driver.")
+                raise MappingError(
+                    "Unsupported driver '{0}'. Supported drivers: sqlite3, mysql.connector, MySQLdb, pymysql, oursql, psycopg2.".format(
+                        driver.__name__
+                    )
+                )
 
             self.connection = self.driver.connect(**params)
             if driver.__name__ == "sqlite3":
@@ -172,7 +176,7 @@ class Mapper(object):
                 elif len(rows) == 1:
                     return self.__create_result(row=rows[0], result_type=result_type)
                 else:
-                    raise MappingError("Multiple result was obtained.")
+                    raise MappingError("Expected exactly one row, but multiple rows were returned.")
             finally:
                 cursor.close()
         except self.driver.NotSupportedError as error:
@@ -409,13 +413,24 @@ class Mapper(object):
 
     @staticmethod
     def __get_variable(parameter, name):
-        try:
-            if isinstance(parameter, dict):
+        if isinstance(parameter, dict):
+            try:
                 return parameter[name]
-            else:
+            except KeyError:
+                raise MappingError(
+                    "Bind variable '{0}' was not found in dict parameter. Available keys: {1}".format(
+                        name, sorted(parameter.keys())
+                    )
+                )
+        else:
+            try:
                 return getattr(parameter, name)
-        except (KeyError, AttributeError):
-            raise MappingError("Bind variable '{0}' not found in '{1}'.".format(name, parameter))
+            except AttributeError:
+                raise MappingError(
+                    "Bind variable '{0}' was not found in parameter object of type '{1}'.".format(
+                        name, type(parameter).__name__
+                    )
+                )
 
     @staticmethod
     def __create_result(row, result_type):
@@ -433,5 +448,7 @@ class Mapper(object):
                 if hasattr(result, name):
                     setattr(result, name, row[name])
                 else:
-                    raise MappingError("Attribute '{0}' not found in '{1}'.".format(name, result_type))
+                    raise MappingError(
+                        "Attribute '{0}' was not found in result_type '{1}'.".format(name, result_type.__name__)
+                    )
             return result
