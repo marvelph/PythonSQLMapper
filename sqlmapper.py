@@ -102,12 +102,7 @@ class Mapper(object):
 
             self.connection = self.driver.connect(**params)
             if driver.__name__ == "sqlite3":
-
-                def dict_factory(cursor, row):
-                    fields = [column[0] for column in cursor.description]
-                    return {key: value for key, value in zip(fields, row)}
-
-                self.connection.row_factory = dict_factory
+                self.connection.row_factory = self.__sqlite3_dict_factory
         except self.driver.NotSupportedError as error:
             raise DriverNotSupportedError(*error.args) from error
         except self.driver.ProgrammingError as error:
@@ -409,6 +404,11 @@ class Mapper(object):
             parameters += (self.__get_variable(parameter, sql[match.start() + 1 : match.end()]),)
         represented_sql += sql[start:]
         return represented_sql, parameters
+
+    @staticmethod
+    def __sqlite3_dict_factory(cursor, row):
+        fields = [column[0] for column in cursor.description]
+        return {key: value for key, value in zip(fields, row)}
 
     @staticmethod
     def __get_variable(parameter, name):
