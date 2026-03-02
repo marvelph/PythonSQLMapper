@@ -130,37 +130,45 @@ class TestPsycopg2Mapper(unittest.TestCase):
         self.mapper.commit()
 
     def _seed_data(self):
-        sales_id = self.mapper.insert("INSERT INTO departments (name) VALUES (:name)", {"name": "Sales"})
-        engineering_id = self.mapper.insert(
-            "INSERT INTO departments (name) VALUES (:name)", {"name": "Engineering"}
+        sales = self.mapper.select_one(
+            "INSERT INTO departments (name) VALUES (:name) RETURNING id",
+            {"name": "Sales"},
+        )
+        engineering = self.mapper.select_one(
+            "INSERT INTO departments (name) VALUES (:name) RETURNING id",
+            {"name": "Engineering"},
         )
 
-        self.alice_id = self.mapper.insert(
+        alice = self.mapper.select_one(
             """
             INSERT INTO users (name, status, updated_at, department_id, used_flag)
             VALUES (:name, :status, :updated_at, :department_id, :used_flag)
+            RETURNING id
             """,
             {
                 "name": "Alice",
                 "status": "active",
                 "updated_at": "2026-03-01 09:00:00",
-                "department_id": sales_id,
+                "department_id": sales.id,
                 "used_flag": 0,
             },
         )
-        self.bob_id = self.mapper.insert(
+        bob = self.mapper.select_one(
             """
             INSERT INTO users (name, status, updated_at, department_id, used_flag)
             VALUES (:name, :status, :updated_at, :department_id, :used_flag)
+            RETURNING id
             """,
             {
                 "name": "Bob",
                 "status": "active",
                 "updated_at": "2026-03-01 09:00:00",
-                "department_id": engineering_id,
+                "department_id": engineering.id,
                 "used_flag": 1,
             },
         )
+        self.alice_id = alice.id
+        self.bob_id = bob.id
         self.mapper.insert(
             "INSERT INTO accounts (id, balance) VALUES (:id, :balance)",
             {"id": 1, "balance": 5000},
