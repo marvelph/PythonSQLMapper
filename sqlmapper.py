@@ -106,7 +106,7 @@ class Mapper(object):
                 raise
 
         if self.driver.__name__ == "sqlite3":
-            self.connection.row_factory = self.__sqlite3_dict_factory
+            self.connection.row_factory = self.__sqlite3_dict_row_factory
 
     def close(self):
         try:
@@ -295,7 +295,7 @@ class Mapper(object):
             return None
 
     @staticmethod
-    def __sqlite3_dict_factory(cursor, row):
+    def __sqlite3_dict_row_factory(cursor, row):
         fields = [column[0] for column in cursor.description]
         return {key: value for key, value in zip(fields, row)}
 
