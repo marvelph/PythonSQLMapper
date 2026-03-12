@@ -114,7 +114,7 @@ class Mapper(object):
         if self.driver.__name__ == "sqlite3":
             self.connection.row_factory = self.__sqlite3_row_factory
 
-    def close(self):
+    def close(self) -> None:
         try:
             if self.connection is not None:
                 self.connection.close()
@@ -126,7 +126,7 @@ class Mapper(object):
             else:
                 raise
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.close()
 
     def __enter__(self):
@@ -184,7 +184,7 @@ class Mapper(object):
 
     returning_all = select_all
 
-    def insert(self, sql: str, parameter=None):
+    def insert(self, sql: str, parameter=None) -> int | None:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -199,7 +199,7 @@ class Mapper(object):
             else:
                 raise
 
-    def update(self, sql: str, parameter=None):
+    def update(self, sql: str, parameter=None) -> int:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -216,7 +216,7 @@ class Mapper(object):
 
     delete = update
 
-    def upsert(self, sql: str, parameter=None):
+    def upsert(self, sql: str, parameter=None) -> tuple[int, int | None]:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -233,7 +233,7 @@ class Mapper(object):
 
     ignore = upsert
 
-    def execute(self, sql: str, parameter=None):
+    def execute(self, sql: str, parameter=None) -> None:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -247,7 +247,7 @@ class Mapper(object):
             else:
                 raise
 
-    def commit(self):
+    def commit(self) -> None:
         try:
             self.connection.commit()
         except Exception as error:
@@ -257,7 +257,7 @@ class Mapper(object):
             else:
                 raise
 
-    def rollback(self):
+    def rollback(self) -> None:
         try:
             self.connection.rollback()
         except Exception as error:
