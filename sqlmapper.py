@@ -348,5 +348,3 @@ class Mapper(object):
                 else:
                     raise MappingError(f"Attribute '{name}' was not found in result_type '{result_type.__name__}'.")
             return result
-                    raise MappingError(f"Attribute '{name}' was not found in result_type '{result_type.__name__}'.")
-            return result
