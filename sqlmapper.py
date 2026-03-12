@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any, Mapping
 
 
 class MappingError(Exception):
@@ -138,7 +139,7 @@ class Mapper(object):
         self.close()
         return None
 
-    def select_one(self, sql: str, parameter=None, result_type=None):
+    def select_one(self, sql: str, parameter: Mapping[str, Any] | object | None = None, result_type=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -161,7 +162,14 @@ class Mapper(object):
 
     returning_one = select_one
 
-    def select_all(self, sql: str, parameter=None, result_type=None, array_size: int = 1, buffered: bool = True):
+    def select_all(
+        self,
+        sql: str,
+        parameter: Mapping[str, Any] | object | None = None,
+        result_type=None,
+        array_size: int = 1,
+        buffered: bool = True,
+    ):
         try:
             if buffered:
                 cursor = self.connection.cursor(**self.__buffered_cursor_params)
@@ -187,7 +195,7 @@ class Mapper(object):
 
     returning_all = select_all
 
-    def insert(self, sql: str, parameter=None) -> int | None:
+    def insert(self, sql: str, parameter: Mapping[str, Any] | object | None = None) -> int | None:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -202,7 +210,7 @@ class Mapper(object):
             else:
                 raise
 
-    def update(self, sql: str, parameter=None) -> int:
+    def update(self, sql: str, parameter: Mapping[str, Any] | object | None = None) -> int:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -219,7 +227,7 @@ class Mapper(object):
 
     delete = update
 
-    def upsert(self, sql: str, parameter=None) -> tuple[int, int | None]:
+    def upsert(self, sql: str, parameter: Mapping[str, Any] | object | None = None) -> tuple[int, int | None]:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -236,7 +244,7 @@ class Mapper(object):
 
     ignore = upsert
 
-    def execute(self, sql: str, parameter=None) -> None:
+    def execute(self, sql: str, parameter: Mapping[str, Any] | object | None = None) -> None:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
