@@ -65,30 +65,36 @@ class Mapper(object):
         self.connection = None
 
         if self.driver.__name__ == "sqlite3":
+            self.__buffered_cursor_params = {}
             self.__cursor_params = {}
-            self.__buffered_cursor_params = self.__cursor_params
+            self.__cursor_name_generator = None
             self.__place_holder = "?"
         elif self.driver.__name__ == "mysql.connector":
-            self.__cursor_params = {"dictionary": True}
             self.__buffered_cursor_params = {"dictionary": True, "buffered": True}
+            self.__cursor_params = {"dictionary": True}
+            self.__cursor_name_generator = None
             self.__place_holder = "%s"
         elif self.driver.__name__ == "MySQLdb":
             import MySQLdb.cursors
 
-            self.__cursor_params = {"cursorclass": MySQLdb.cursors.SSDictCursor}
             self.__buffered_cursor_params = {"cursorclass": MySQLdb.cursors.DictCursor}
+            self.__cursor_params = {"cursorclass": MySQLdb.cursors.SSDictCursor}
+            self.__cursor_name_generator = None
             self.__place_holder = "%s"
         elif self.driver.__name__ == "pymysql":
             import pymysql.cursors
 
-            self.__cursor_params = {"cursor": pymysql.cursors.SSDictCursor}
             self.__buffered_cursor_params = {"cursor": pymysql.cursors.DictCursor}
+            self.__cursor_params = {"cursor": pymysql.cursors.SSDictCursor}
+            self.__cursor_name_generator = None
             self.__place_holder = "%s"
         elif self.driver.__name__ == "psycopg2":
             import psycopg2.extras
 
+            self.__buffered_cursor_params = {"cursor_factory": psycopg2.extras.RealDictCursor}
             self.__cursor_params = {"cursor_factory": psycopg2.extras.RealDictCursor}
-            self.__buffered_cursor_params = self.__cursor_params
+            self.__cursor_name_generator = self.__psycopg2_cursor_name_generator
+            self.__cursor_sequence = 0
             self.__place_holder = "%s"
         else:
             raise MappingError(
@@ -156,8 +162,10 @@ class Mapper(object):
         try:
             if buffered:
                 cursor = self.connection.cursor(**self.__buffered_cursor_params)
-            else:
+            elif self.__cursor_name_generator is None:
                 cursor = self.connection.cursor(**self.__cursor_params)
+            else:
+                cursor = self.connection.cursor(name=self.__cursor_name_generator(), **self.__cursor_params)
             try:
                 cursor.execute(*self.__map_parameter(sql, parameter))
                 rows = cursor.fetchmany(array_size)
@@ -258,6 +266,10 @@ class Mapper(object):
                 raise mapped from error
             else:
                 raise
+
+    def __psycopg2_cursor_name_generator(self):
+        self.__cursor_sequence += 1
+        return f"sqlmapper_{self.__cursor_sequence}"
 
     def __map_parameter(self, sql, parameter):
         represented_sql = ""
