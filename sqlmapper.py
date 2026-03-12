@@ -135,7 +135,7 @@ class Mapper(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def select_one(self, sql, parameter=None, result_type=None):
+    def select_one(self, sql: str, parameter=None, result_type=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -158,7 +158,7 @@ class Mapper(object):
 
     returning_one = select_one
 
-    def select_all(self, sql, parameter=None, result_type=None, array_size=1, buffered=True):
+    def select_all(self, sql: str, parameter=None, result_type=None, array_size: int = 1, buffered: bool = True):
         try:
             if buffered:
                 cursor = self.connection.cursor(**self.__buffered_cursor_params)
@@ -184,7 +184,7 @@ class Mapper(object):
 
     returning_all = select_all
 
-    def insert(self, sql, parameter=None):
+    def insert(self, sql: str, parameter=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -199,7 +199,7 @@ class Mapper(object):
             else:
                 raise
 
-    def update(self, sql, parameter=None):
+    def update(self, sql: str, parameter=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -216,7 +216,7 @@ class Mapper(object):
 
     delete = update
 
-    def upsert(self, sql, parameter=None):
+    def upsert(self, sql: str, parameter=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
@@ -233,7 +233,7 @@ class Mapper(object):
 
     ignore = upsert
 
-    def execute(self, sql, parameter=None):
+    def execute(self, sql: str, parameter=None):
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
