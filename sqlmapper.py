@@ -8,6 +8,8 @@
 #  Written by Kenji Nishishiro <marvel@programmershigh.org>.
 #
 
+from __future__ import annotations
+
 import re
 
 
@@ -129,10 +131,10 @@ class Mapper(object):
     def __del__(self) -> None:
         self.close()
 
-    def __enter__(self):
+    def __enter__(self) -> Mapper:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback) -> bool | None:
         self.close()
 
     def select_one(self, sql: str, parameter=None, result_type=None):
@@ -344,5 +346,7 @@ class Mapper(object):
                 if hasattr(result, name):
                     setattr(result, name, row[name])
                 else:
+                    raise MappingError(f"Attribute '{name}' was not found in result_type '{result_type.__name__}'.")
+            return result
                     raise MappingError(f"Attribute '{name}' was not found in result_type '{result_type.__name__}'.")
             return result
