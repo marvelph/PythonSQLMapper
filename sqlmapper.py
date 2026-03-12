@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Mapping, TypeVar, overload
+from typing import Any, Iterable, Mapping, TypeVar
 
 
 class MappingError(Exception):
@@ -171,10 +171,10 @@ class Mapper(object):
         self,
         sql: str,
         parameter: Mapping[str, Any] | object | None = None,
-        result_type=None,
+        result_type: type[T] | None = None,
         array_size: int = 1,
         buffered: bool = True,
-    ):
+    ) -> Iterable[T | Result]:
         try:
             if buffered:
                 cursor = self.connection.cursor(**self.__buffered_cursor_params)
