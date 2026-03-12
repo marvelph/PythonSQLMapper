@@ -11,7 +11,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Mapping
+from typing import Any, Mapping, TypeVar, overload
 
 
 class MappingError(Exception):
@@ -56,6 +56,9 @@ class DriverProgrammingError(DriverDatabaseError):
 
 class DriverNotSupportedError(DriverDatabaseError):
     pass
+
+
+T = TypeVar("T")
 
 
 class Result(object):
@@ -139,7 +142,9 @@ class Mapper(object):
         self.close()
         return None
 
-    def select_one(self, sql: str, parameter: Mapping[str, Any] | object | None = None, result_type=None):
+    def select_one(
+        self, sql: str, parameter: Mapping[str, Any] | object | None = None, result_type: type[T] | None = None
+    ) -> T | Result | None:
         try:
             cursor = self.connection.cursor(**self.__cursor_params)
             try:
