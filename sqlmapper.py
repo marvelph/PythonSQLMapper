@@ -136,6 +136,7 @@ class Mapper(object):
 
     def __exit__(self, exc_type, exc_value, traceback) -> bool | None:
         self.close()
+        return None
 
     def select_one(self, sql: str, parameter=None, result_type=None):
         try:
