@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "PythonSQLMapper"
+version = "1.3"
+requires-python = ">= 3.10"
+authors = [
+  {name = "Kenji Nishishiro", email = "marvel@programmershigh.org"},
+]
+description = "SQL mapping library for python."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["sql", "mapper", "database", "orm", "dbapi", "sqlite", "mysql", "postgresql"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+]
+
+[project.urls]
+homepage = "https://github.com/marvelph/PythonSQLMapper"
+
+[tool.setuptools]
+py-modules = ["sqlmapper"]
