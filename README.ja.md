@@ -1,6 +1,6 @@
 # PythonSQLMapper
 
-English: [README.md](README.md)
+[日本語](README.ja.md) | [English](README.md)
 
 PythonSQLMapper は、SQL の実行結果を Python オブジェクトへマッピングする小さなライブラリです。  
 [iBATIS](https://ibatis.apache.org) に近い思想で、シンプルに使えることを重視しています。

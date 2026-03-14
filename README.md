@@ -1,6 +1,6 @@
 # PythonSQLMapper
 
-日本語: [README.ja.md](README.ja.md)
+[English](README.md) | [日本語](README.ja.md)
 
 PythonSQLMapper is a small library that maps SQL results to Python objects.  
 It follows a design philosophy similar to [iBATIS](https://ibatis.apache.org), with a focus on keeping things simple.
