@@ -1,5 +1,7 @@
 # 開発者向けガイド
 
+English: [DEVELOPMENT.md](DEVELOPMENT.md)
+
 Python の仮想環境には `venv` を使用して開発します。  
 必要な環境変数は `.env` ファイルで管理します。
 

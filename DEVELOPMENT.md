@@ -1,5 +1,7 @@
 # Developer Guide
 
+日本語: [DEVELOPMENT.ja.md](DEVELOPMENT.ja.md)
+
 Use `venv` for the Python virtual environment.  
 Manage required environment variables in a `.env` file.
 
