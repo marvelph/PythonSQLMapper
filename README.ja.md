@@ -511,6 +511,22 @@ for row in rows:
 - `DriverProgrammingError`
 - `DriverNotSupportedError`
 
+## 関連ドキュメント
+
+開発者向けガイド: [DEVELOPMENT.ja.md](DEVELOPMENT.ja.md)  
+TODO: [TODO.ja.md](TODO.ja.md)
+
 ## ライセンス
 
-MIT License
+ライセンスは [LICENSE](LICENSE) を参照してください。
+
+## 配布元
+
+PyPI: https://pypi.org/project/PythonSQLMapper/  
+GitHub: https://github.com/marvelph/PythonSQLMapper
+
+## 連絡先
+
+不具合報告や要望は GitHub の Issues にお願いします。  
+https://github.com/marvelph/PythonSQLMapper/issues  
+メール: marvel@programmershigh.org

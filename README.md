@@ -512,6 +512,22 @@ This library wraps driver exceptions into `sqlmapper`-specific exceptions.
 - `DriverProgrammingError`
 - `DriverNotSupportedError`
 
+## More Documents
+
+Developer Guide: [DEVELOPMENT.md](DEVELOPMENT.md)  
+TODO: [TODO.md](TODO.md)
+
 ## License
 
-MIT License
+See [LICENSE](LICENSE).
+
+## Distribution
+
+PyPI: https://pypi.org/project/PythonSQLMapper/  
+GitHub: https://github.com/marvelph/PythonSQLMapper
+
+## Contact
+
+Please use GitHub Issues for bug reports and feature requests.  
+https://github.com/marvelph/PythonSQLMapper/issues  
+Email: marvel@programmershigh.org
