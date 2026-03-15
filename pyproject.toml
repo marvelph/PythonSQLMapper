@@ -10,7 +10,7 @@ authors = [
   {name = "Kenji Nishishiro", email = "marvel@programmershigh.org"},
 ]
 description = "SQL mapping library for python."
-readme = "README.md"
+readme = "README.pypi.md"
 license = "MIT"
 license-files = ["LICENSE"]
 keywords = ["sql", "mapper", "database", "orm", "dbapi", "sqlite", "mysql", "postgresql"]
